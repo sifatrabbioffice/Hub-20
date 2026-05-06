@@ -15,11 +15,89 @@ jobs:
       - name: Install Dependencies
         run: brew install xcodegen
 
-      - name: Generate Project
+      - name: Generate Source Files and Plist
         run: |
           mkdir -p GameHub
-          # [The App.swift and Info.plist content goes here]
+          
+          # Use a heredoc to create the plist
+          cat <<EOF > GameHub/Info.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleExecutable</key>
+            <string>GameHub</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.gamehub.emulator.promax</string>
+            <key>CFBundleName</key>
+            <string>GameHub</string>
+            <key>CFBundlePackageType</key>
+            <string>APPL</string>
+            <key>CFBundleShortVersionString</key>
+            <string>1.0</string>
+            <key>CFBundleVersion</key>
+            <string>1</string>
+            <key>LSRequiresIPhoneOS</key>
+            <true/>
+            <key>UIFileSharingEnabled</key>
+            <true/>
+            <key>LSSupportsOpeningDocumentsInPlace</key>
+            <true/>
+            <key>UILaunchStoryboardName</key>
+            <string>LaunchScreen</string>
+            <key>UISupportedInterfaceOrientations</key>
+            <array>
+              <string>UIInterfaceOrientationLandscapeLeft</string>
+              <string>UIInterfaceOrientationLandscapeRight</string>
+            </array>
+          </dict>
+          </plist>
+          EOF
+
+          # Verification Step: This prevents the "Not a Dictionary" error
+          plutil -lint GameHub/Info.plist || exit 1
+
+          # Create LaunchScreen.swift
+          cat <<EOF > GameHub/LaunchScreen.swift
+          import UIKit
+          class LaunchScreen: UIViewController {}
+          EOF
+
+          # Create App.swift (The Engine UI)
+          cat <<EOF > GameHub/App.swift
+          import SwiftUI
+
+          @main
+          struct GameHubApp: App {
+              var body: some Scene {
+                  WindowGroup {
+                      MainDashboard()
+                  }
+              }
+          }
+
+          struct MainDashboard: View {
+              var body: some View {
+                  ZStack {
+                      Color.black.ignoresSafeArea()
+                      VStack {
+                          Text("GAMEHUB ENGINE").font(.largeTitle).bold().foregroundColor(.blue)
+                          Text("DirectX 11 / x64 Environment Ready").font(.caption).foregroundColor(.green)
+                          Spacer()
+                          RoundedRectangle(cornerRadius: 15)
+                              .stroke(Color.gray, lineWidth: 1)
+                              .frame(height: 200)
+                              .overlay(Text("No .exe detected in Library").foregroundColor(.gray))
+                          Spacer()
+                      }.padding()
+                  }
+              }
+          }
+          EOF
+
+          # Generate Project
           xcodegen generate
+
 
       - name: Build and Archive
         run: |
