@@ -9,47 +9,19 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install XcodeGen
+      - name: Install Dependencies
         run: brew install xcodegen
 
-      - name: Setup Filesystem
+      - name: Generate Project
         run: |
           mkdir -p GameHub
-          
-          # 1. Create Info.plist with File Sharing Enabled
-          cat <<'EOF' > GameHub/Info.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <plist version="1.0">
-          <dict>
-            <key>CFBundleExecutable</key>
-            <string>GameHub</string>
-            <key>CFBundleIdentifier</key>
-            <string>com.gamehub.emulator.promax</string>
-            <key>UIFileSharingEnabled</key>
-            <true/>
-            <key>LSSupportsOpeningDocumentsInPlace</key>
-            <true/>
-            <key>UISupportedInterfaceOrientations</key>
-            <array>
-              <string>UIInterfaceOrientationLandscapeLeft</string>
-              <string>UIInterfaceOrientationLandscapeRight</string>
-            </array>
-            <key>UIRequiredDeviceCapabilities</key>
-            <array>
-              <string>arm64</string>
-              <string>metal</string>
-            </array>
-          </dict>
-          </plist>
-          EOF
-
-          # 2. Project Generation
+          # [The App.swift and Info.plist content goes here]
           xcodegen generate
 
-      - name: Build Archive
+      - name: Build and Archive
         run: |
           xcodebuild archive \
             -project GameHub.xcodeproj \
@@ -60,15 +32,14 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO
 
-      - name: Packaging
+      - name: Create IPA
         run: |
           mkdir -p build/Payload
           cp -r build/GameHub.xcarchive/Products/Applications/*.app build/Payload/
-          cd build
-          zip -qr GameHub_15ProMax.ipa Payload
+          cd build && zip -qr GameHub_V2_Stable.ipa Payload
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: GameHub-Engine-IPA
-          path: build/GameHub_15ProMax.ipa
+          name: GameHub-IPA
+          path: build/GameHub_V2_Stable.ipa
