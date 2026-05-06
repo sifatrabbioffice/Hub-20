@@ -4,84 +4,130 @@ import SwiftUI
 struct GameHubApp: App {
     var body: some Scene {
         WindowGroup {
-            LandingPage()
+            ContentView()
         }
     }
 }
 
-// --- Page 1: High-End Welcome ---
-struct LandingPage: View {
-    @State private var isActive = false
+struct ContentView: View {
+    @State private var currentPage = 1
     
     var body: some View {
-        if isActive {
-            LibraryView()
-        } else {
-            ZStack {
-                Color.black.ignoresSafeArea()
-                VStack(spacing: 20) {
-                    Text("GAMEHUB")
-                        .font(.system(size: 60, weight: .black, design: .monospaced))
-                        .foregroundStyle(LinearGradient(colors: [.blue, .cyan], startPoint: .top, endPoint: .bottom))
-                    
-                    Text("iPhone 15 Pro Max - A17 Pro Optimized")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    
-                    ProgressView()
-                        .tint(.blue)
-                        .scaleEffect(1.5)
-                }
-            }
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                    withAnimation { isActive = true }
-                }
+        ZStack {
+            Color.black.ignoresSafeArea()
+            if currentPage == 1 {
+                WelcomeView(onStart: { currentPage = 2 })
+            } else {
+                EngineDashboardView()
             }
         }
     }
 }
 
-// --- Page 2: Library & Engine Settings ---
-struct LibraryView: View {
-    @State private var engineStatus = "Initializing DirectX 11..."
-    
+// MARK: - Page 1: Welcome Screen
+struct WelcomeView: View {
+    var onStart: () -> Void
     var body: some View {
-        NavigationStack {
-            ZStack {
-                Color(white: 0.1).ignoresSafeArea()
-                VStack {
-                    ScrollView {
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
-                            ForEach(0..<4) { i in
-                                RoundedRectangle(cornerRadius: 15)
-                                    .fill(Color.darkGray)
-                                    .frame(height: 200)
-                                    .overlay(Text("Add PC Game .exe").foregroundColor(.gray))
-                            }
-                        }
-                        .padding()
-                    }
-                    
-                    // Engine Control Panel
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("System Environment").font(.headline).foregroundColor(.white)
-                        HStack {
-                            Label("DirectX 11", systemImage: "bolt.fill").foregroundColor(.green)
-                            Label("C++ 2015-2022", systemImage: "cpu").foregroundColor(.blue)
-                        }
-                        Text("Status: \(engineStatus)").font(.system(size: 12)).foregroundColor(.cyan)
-                    }
+        VStack(spacing: 20) {
+            Text("GAMEHUB")
+                .font(.system(size: 64, weight: .black, design: .monospaced))
+                .foregroundStyle(LinearGradient(colors: [.blue, .purple], startPoint: .top, endPoint: .bottom))
+            
+            Text("iPhone 15 Pro Max - Ultra Environment")
+                .font(.caption)
+                .foregroundColor(.gray)
+            
+            Button(action: onStart) {
+                Text("INITIALIZE ENGINE")
+                    .fontWeight(.bold)
                     .padding()
-                    .background(Color.black.opacity(0.8))
-                }
-            }
-            .navigationTitle("GameHub Library")
-            .toolbar {
-                Button("Settings") { /* Access Wine/Emulator Config */ }
+                    .frame(width: 280)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
             }
         }
     }
 }
 
-extension Color { static let darkGray = Color(white: 0.2) }
+// MARK: - Page 2: Engine & Library
+struct EngineDashboardView: View {
+    @State private var selectedDirectX = "DirectX 11"
+    @State private var isRunning = false
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            // Sidebar Settings
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Environment Settings").font(.headline).foregroundColor(.blue)
+                
+                Picker("Graphics Engine", selection: $selectedDirectX) {
+                    Text("DirectX 9").tag("DirectX 9")
+                    Text("DirectX 11").tag("DirectX 11")
+                    Text("Vulkan").tag("Vulkan")
+                }.pickerStyle(.menu)
+                
+                Toggle("C++ Redistributables", isOn: .constant(true))
+                Toggle("High-Performance Mode", isOn: .constant(true))
+                
+                Spacer()
+                
+                Button(action: { isRunning.toggle() }) {
+                    Text(isRunning ? "STOP SESSION" : "LAUNCH .EXE")
+                        .bold()
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(isRunning ? Color.red : Color.green)
+                        .cornerRadius(10)
+                }
+            }
+            .padding()
+            .frame(width: 300)
+            .background(Color(white: 0.1))
+
+            // Library / Game View
+            ZStack {
+                Color.black
+                if isRunning {
+                    VirtualGamepadView()
+                } else {
+                    VStack {
+                        Image(systemName: "folder.badge.plus")
+                            .font(.system(size: 50))
+                            .foregroundColor(.gray)
+                        Text("Import .exe or ISO from Documents").foregroundColor(.gray)
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Virtual Gamepad Overlay
+struct VirtualGamepadView: View {
+    var body: some View {
+        ZStack {
+            // Placeholder for Game Content
+            Text("WIN32_ENV_RUNNING...").foregroundColor(.green).font(.system(size: 10))
+            
+            // PS5 Style Controls
+            HStack {
+                Circle().frame(width: 100, height: 100).opacity(0.3) // D-Pad
+                Spacer()
+                VStack {
+                    HStack {
+                        Circle().frame(width: 40, height: 40).overlay(Text("Δ"))
+                    }
+                    HStack {
+                        Circle().frame(width: 40, height: 40).overlay(Text("□"))
+                        Spacer().frame(width: 40)
+                        Circle().frame(width: 40, height: 40).overlay(Text("O"))
+                    }
+                    Circle().frame(width: 40, height: 40).overlay(Text("X"))
+                }
+            }
+            .padding(40)
+            .foregroundColor(.white)
+        }
+    }
+}
