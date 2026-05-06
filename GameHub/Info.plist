@@ -1,0 +1,13 @@
+<key>LSSupportsOpeningDocumentsInPlace</key>
+<true/>
+<key>UIFileSharingEnabled</key>
+<true/>
+<key>NSCanExecuteBinary</key> <!-- Required for some JIT workflows -->
+<true/>
+<key>GCSupportedGameControllers</key>
+<array>
+    <dict>
+        <key>ProfileName</key>
+        <string>ExtendedGamepad</string>
+    </dict>
+</array>
