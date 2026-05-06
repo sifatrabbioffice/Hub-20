@@ -10,10 +10,12 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: GameHub/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
         PRODUCT_BUNDLE_IDENTIFIER: com.gamehub.emulator.promax
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        # Critical for Emulation Engine:
-        ENABLE_BITCODE: NO
-        ONLY_ACTIVE_ARCH: YES
-        VALID_ARCHS: arm64
-        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) HAVE_JIT=1"
+        MARKETING_VERSION: 2.0
+        CURRENT_PROJECT_VERSION: 1
+        TARGETED_DEVICE_FAMILY: 1 # iPhone
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        # Required for local file access and external library loading
+        ENABLE_BITCODE: NO 
+        ONLY_ACTIVE_ARCH: NO
