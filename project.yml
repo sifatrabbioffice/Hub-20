@@ -1,0 +1,19 @@
+name: GameHub
+options:
+  bundleIdPrefix: com.gamehub.emulator
+targets:
+  GameHub:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources: [GameHub]
+    settings:
+      base:
+        INFOPLIST_FILE: GameHub/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.gamehub.emulator.promax
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Critical for Emulation Engine:
+        ENABLE_BITCODE: NO
+        ONLY_ACTIVE_ARCH: YES
+        VALID_ARCHS: arm64
+        GCC_PREPROCESSOR_DEFINITIONS: "$(inherited) HAVE_JIT=1"
